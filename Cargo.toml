@@ -1,0 +1,40 @@
+[package]
+name = "aide"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# GUI
+eframe = "0.33"
+egui = "0.33"
+
+# テキストバッファ
+ropey = "1.6"
+
+# 構文ハイライト
+tree-sitter = "0.26"
+tree-sitter-highlight = "0.26"
+tree-sitter-rust = "0.24"
+
+# LSP
+lsp-types = "0.97"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# ターミナル
+portable-pty = "0.8"
+alacritty_terminal = "0.25"
+
+# 非同期
+tokio = { version = "1", features = ["full"] }
+flume = "0.11"
+
+# ユーティリティ
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
+rfd = "0.15"
+
+[dev-dependencies]
+# テスト用
+tempfile = "3"

@@ -1,0 +1,21 @@
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development notes (not tracked)
+temp_*.md
+
+# Environment
+.env
+.env.local
