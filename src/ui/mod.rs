@@ -6,4 +6,6 @@ pub mod tabs;
 pub mod sidebar;
 pub mod statusbar;
 
-// TODO: Phase 6で実装
+pub use tabs::{Tab, TabBar, TabBarAction};
+pub use sidebar::{FileEntry, FileExplorer};
+pub use statusbar::{StatusBar, StatusInfo};
