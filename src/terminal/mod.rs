@@ -6,4 +6,5 @@
 pub mod pty;
 pub mod view;
 
-// TODO: Phase 5で実装
+pub use pty::{PtyError, PtyManager, TerminalSize};
+pub use view::{TerminalColors, TerminalView};

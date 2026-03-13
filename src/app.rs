@@ -4,6 +4,7 @@
 
 use crate::buffer::{TextBuffer, History, history::EditCommand};
 use crate::highlight::{SyntaxHighlighter, Language, theme::Theme};
+use crate::terminal::TerminalView;
 use eframe::egui;
 
 /// アプリケーションのメインステート
@@ -20,6 +21,8 @@ pub struct AideApp {
     status_message: String,
     /// 前回のテキスト（差分検出用）
     previous_text: String,
+    /// ターミナルビュー
+    terminal: TerminalView,
 }
 
 impl AideApp {
@@ -36,6 +39,7 @@ impl AideApp {
             theme: Theme::dark(),
             status_message: String::from("AIDE - 準備完了"),
             previous_text: String::new(),
+            terminal: TerminalView::new(),
         }
     }
 
@@ -266,6 +270,16 @@ impl eframe::App for AideApp {
                             ui.close();
                         }
                     });
+                    ui.separator();
+                    let terminal_label = if self.terminal.is_visible() {
+                        "ターミナルを隠す (Ctrl+`)"
+                    } else {
+                        "ターミナルを表示 (Ctrl+`)"
+                    };
+                    if ui.button(terminal_label).clicked() {
+                        self.terminal.toggle();
+                        ui.close();
+                    }
                 });
                 ui.menu_button("ヘルプ", |ui| {
                     if ui.button("AIDEについて").clicked() {
@@ -295,17 +309,41 @@ impl eframe::App for AideApp {
                         .map(|l| l.name())
                         .unwrap_or("なし");
 
+                    // ターミナル状態
+                    let terminal_status = if self.terminal.is_visible() { " | ターミナル: 表示中" } else { "" };
+
                     ui.label(format!(
-                        "{} | {} 行, {} 文字 | 言語: {}{}",
+                        "{} | {} 行, {} 文字 | 言語: {}{}{}",
                         self.theme.name,
                         lines,
                         chars,
                         lang,
-                        modified
+                        modified,
+                        terminal_status
                     ));
                 });
             });
         });
+
+        // ターミナルパネル（下部、表示されている場合）
+        if self.terminal.is_visible() {
+            egui::TopBottomPanel::bottom("terminal_panel")
+                .resizable(true)
+                .min_height(100.0)
+                .default_height(200.0)
+                .show(ctx, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.heading("ターミナル");
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if ui.button("×").clicked() {
+                                self.terminal.toggle();
+                            }
+                        });
+                    });
+                    ui.separator();
+                    self.terminal.ui(ui);
+                });
+        }
 
         // メインエディター領域
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -340,6 +378,11 @@ impl eframe::App for AideApp {
                 });
             });
         });
+
+        // ターミナルが表示中なら定期的に再描画
+        if self.terminal.is_visible() {
+            ctx.request_repaint();
+        }
     }
 }
 
@@ -378,6 +421,11 @@ impl AideApp {
         }
         if modifiers.ctrl && modifiers.shift && ctx.input(|i| i.key_pressed(egui::Key::Z)) {
             self.redo();
+        }
+
+        // Ctrl+`: ターミナル切り替え
+        if modifiers.ctrl && ctx.input(|i| i.key_pressed(egui::Key::Backtick)) {
+            self.terminal.toggle();
         }
     }
 }
